@@ -13,16 +13,20 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.xphonesoftware.fetch.domain.Candidate
 import com.xphonesoftware.fetch.presentation.components.AppBar
 import com.xphonesoftware.fetch.presentation.components.CandidateItem
+import com.xphonesoftware.fetch.presentation.models.CandidateUi
 import com.xphonesoftware.fetch.presentation.models.toCandidateUi
 import com.xphonesoftware.fetch.ui.theme.FetchTheme
 
@@ -34,6 +38,8 @@ fun CandidateListScreen(
 ) {
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val groupedItems: Map<String, List<CandidateUi>> =
+        state.candidates.groupBy { it.listId.toString() }
 
     FetchTheme {
         Scaffold(
@@ -56,15 +62,27 @@ fun CandidateListScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
                 ) {
-                    items(state.candidates) { candidateUi ->
-                        CandidateItem(
-                            candidateUi = candidateUi,
-                            onClick = {
-                                onAction(CandidateListAction.OnItemClicked(candidateUi))
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            isSelected = candidateUi == state.selectedCandidate
-                        )
+                    groupedItems.forEach { (groupKey, itemsInCategory) ->
+                        item {
+                            Text(
+                                text = "Group $groupKey",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+                        items(itemsInCategory) { candidateUi ->
+                            CandidateItem(
+                                candidateUi = candidateUi,
+                                onClick = {
+                                    onAction(CandidateListAction.OnItemClicked(candidateUi))
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                isSelected = candidateUi == state.selectedCandidate
+                            )
+                        }
                     }
                 }
             }
