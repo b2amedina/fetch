@@ -62,7 +62,8 @@ fun CandidateListScreen(
                             onClick = {
                                 onAction(CandidateListAction.OnItemClicked(candidateUi))
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            isSelected = candidateUi == state.selectedCandidate
                         )
                     }
                 }

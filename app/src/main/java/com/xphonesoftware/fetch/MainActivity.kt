@@ -4,35 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.lifecycle.lifecycleScope
-import com.xphonesoftware.fetch.data.CandidateRepository
+import androidx.activity.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.xphonesoftware.fetch.presentation.CandidateListScreen
-import com.xphonesoftware.fetch.presentation.CandidateListState
+import com.xphonesoftware.fetch.presentation.CandidateListViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var candidateDataSource: CandidateRepository
+    private val viewModel: CandidateListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
-            candidateDataSource.getCandidates()
-        }
-
         enableEdgeToEdge()
         setContent {
             CandidateListScreen(
-                state = CandidateListState(
-                    isLoading = true,
-                    candidates = emptyList(),
-                    selectedCandidate = null),
-                onAction = { TODO() },
+                state = viewModel.state.collectAsStateWithLifecycle().value,
+                onAction = { action -> viewModel.onAction(action) },
             )
         }
     }
